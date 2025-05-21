@@ -1,0 +1,93 @@
+//
+//  DetailsTodoViewController.swift
+//  TodoList
+//
+//  Created by Евгений Фомичев on 20.05.2025.
+//
+
+import UIKit
+
+class DetailsTodoViewController: UIViewController {
+    
+    var presenter: DetailsTodoPresenter?
+    
+    private let titleTextView: UITextView = {
+        let textView = UITextView()
+        textView.textColor = .white
+        textView.font = .systemFont(ofSize: 22, weight: .bold)
+        textView.backgroundColor = .black
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .black
+        view.addSubview(titleTextView)
+        setupTextViews()
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            titleTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            titleTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            titleTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            titleTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
+    
+    private func setupTextViews() {
+        titleTextView.delegate = self
+    }
+}
+
+extension DetailsTodoViewController: DetailsTodoView {
+    
+    func showDetails(_ todoDetails: TodoListItem) {
+        
+    }
+}
+
+extension DetailsTodoViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        updateTextStyles()
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        updateTextStyles()
+    }
+    
+    private func updateTextStyles() {
+        guard let text = titleTextView.text, !text.isEmpty else { return }
+        
+        let attributedString = NSMutableAttributedString(string: text)
+        let fullRange = NSRange(location: 0, length: text.utf16.count)
+        
+        if let newlineRange = text.rangeOfCharacter(from: .newlines) {
+            let firstLineEnd = text.distance(from: text.startIndex, to: newlineRange.lowerBound)
+            let firstLineRange = NSRange(location: 0, length: firstLineEnd)
+            
+            attributedString.addAttributes([
+                .font: UIFont.systemFont(ofSize: 22, weight: .bold),
+                .foregroundColor: UIColor.white
+            ], range: firstLineRange)
+            
+            let remainingRange = NSRange(location: firstLineEnd, length: text.utf16.count - firstLineEnd)
+            attributedString.addAttributes([
+                .font: UIFont.systemFont(ofSize: 17, weight: .regular),
+                .foregroundColor: UIColor.white
+            ], range: remainingRange)
+        } else {
+            attributedString.addAttributes([
+                .font: UIFont.systemFont(ofSize: 22, weight: .bold),
+                .foregroundColor: UIColor.white
+            ], range: fullRange)
+        }
+        titleTextView.attributedText = attributedString
+    }
+}
