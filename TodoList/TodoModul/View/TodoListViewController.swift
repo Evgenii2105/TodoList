@@ -8,9 +8,13 @@
 import UIKit
 
 final class TodoListViewController: UIViewController {
-  
+    
     var presenter: TodoListPresenter?
-    private var todos: [TodoListItem] = []
+    private var todos: [TodoListItem] = [] {
+        didSet {
+            showPlacholderIfNeeded()
+        }
+    }
     
     private let todoTable: UITableView = {
         let todoTable = UITableView()
@@ -36,7 +40,23 @@ final class TodoListViewController: UIViewController {
         toolBar.translatesAutoresizingMaskIntoConstraints = false
         return toolBar
     }()
-   
+    
+    private let placeHolderLabel: UILabel = {
+        let placeHolderLabel = UILabel()
+        placeHolderLabel.text = "Нет записей"
+        placeHolderLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        placeHolderLabel.textColor = .white
+        
+        return placeHolderLabel
+    }()
+    
+    private lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.tintColor = .white
+        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        return refreshControl
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -45,16 +65,17 @@ final class TodoListViewController: UIViewController {
         setupNavigationBar()
         createListFilmsTable()
         presenter?.fetchTodos()
+        todoTable.refreshControl = refreshControl
     }
     
     private func setupUI() {
         view.addSubview(todoTable)
         view.addSubview(toolBar)
         view.backgroundColor = .black
+        todoTable.addSubview(placeHolderLabel)
     }
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             
             todoTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -65,26 +86,34 @@ final class TodoListViewController: UIViewController {
             toolBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             toolBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             toolBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            toolBar.heightAnchor.constraint(equalToConstant: 44)
+            toolBar.heightAnchor.constraint(equalToConstant: 44),
+        ])
+        placeHolderLabel.addConstraint(constraints: [
+            placeHolderLabel.centerXAnchor.constraint(equalTo: todoTable.centerXAnchor),
+            placeHolderLabel.centerYAnchor.constraint(equalTo: todoTable.centerYAnchor)
         ])
     }
     
     @objc
     private func addNewTodo() {
-        let newTodo = TodoListItem(
-            id: 0,
-            userId: 1,
-            title: "",
-            subtitle: "",
-            isCompleted: false
-        )
-        presenter?.didTapAddNewTodo(newTodo)
+        presenter?.makeTodoDetailPresenter(todo: nil)
+    }
+    
+    @objc
+    private func pullToRefresh() {
+        refreshControl.beginRefreshing()
+        presenter?.fetchTodos()
+        refreshControl.endRefreshing()
     }
     
     private func setupNavigationBar() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .automatic
         navigationItem.title = "Задачи"
+    }
+    
+    private func showPlacholderIfNeeded() {
+        placeHolderLabel.isHidden = !todos.isEmpty
     }
     
     private func setupAppearance() {
@@ -117,7 +146,8 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: SearchHeaderView.headerIdentifier)  else { return nil }
+        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: SearchHeaderView.headerIdentifier) as? SearchHeaderView else { return nil }
+        header.listener = self
         return header
     }
     
@@ -143,9 +173,32 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        presenter?.makeTodoDetailPresenter(todo: todos[indexPath.row])
+    }
 }
 
 extension TodoListViewController: TodoListView {
+    
+//    func didConfigureDetailsPresenter(detailsPresenter: TodoListPresenterimpl) {
+//
+//    }
+    
+    func insertTodos(_ todo: TodoListItem) {
+        if let index = self.todos.firstIndex(where: { $0.id == todo.id }) {
+            todos[index] = todo
+        } else {
+            self.todos.insert(todo, at: self.todos.startIndex)
+            
+            todoTable.performBatchUpdates {
+                todoTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+            }
+        }
+        
+        
+        
+    }
     
     func removeTodo(index: Int) {
         todos.remove(at: index)
@@ -154,9 +207,20 @@ extension TodoListViewController: TodoListView {
             todoTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
         }
     }
-
+    
     func showTodos(_ todos: [TodoListItem]) {
-        self.todos = todos
-        todoTable.reloadData() // ИСПРАВИТЬ
+        self.todos = []
+        todoTable.reloadData()
+        
+        if !self.todos.isEmpty {
+            todoTable.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        }
+    }
+}
+
+extension TodoListViewController: SearchHeaderViewListener {
+    
+    func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String) {
+        presenter?.searchTodo(with: text)
     }
 }

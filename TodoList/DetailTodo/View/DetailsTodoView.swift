@@ -8,5 +8,5 @@
 import Foundation
 
 protocol DetailsTodoView: AnyObject {
-    
+    func configure(with todo: TodoListItem?)
 }

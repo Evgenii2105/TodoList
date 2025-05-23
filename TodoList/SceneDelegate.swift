@@ -21,12 +21,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let router = TodoListRouterimpl()
         let presenter = TodoListPresenterimpl(
             view: view,
-            interactor: interactor,
-            router: router
+            interactor: interactor
         )
         
         view.presenter = presenter
         interactor.presenter = presenter
+        interactor.router = router
         router.viewController = view
         
         window?.rootViewController = UINavigationController(rootViewController: view)

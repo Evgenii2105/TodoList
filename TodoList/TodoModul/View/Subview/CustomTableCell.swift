@@ -25,6 +25,12 @@ class CustomTableCell: UITableViewCell {
         return statusButton
     }()
     
+    private let dateLabel: Date = {
+        let dateLabel = Date()
+      //  dateLabel.
+        return dateLabel
+    }()
+    
     private let titleLabel: UILabel = {
        let titleLabel = UILabel()
         titleLabel.numberOfLines = 0
@@ -95,7 +101,7 @@ class CustomTableCell: UITableViewCell {
     @objc
     private func changeStateDone(_ sender: UIButton) {
         sender.isSelected.toggle()
-        let imageName = sender.isSelected ? "checkmark.circle.fill" : "circle.dashed"
+        let imageName = sender.isSelected ? "checkmark.circle.fill" : "circle"
         sender.setImage(UIImage(systemName: imageName), for: .normal)
         
         delegate?.tapStatusButton(cell: self, isSelected: sender.isSelected)
@@ -106,7 +112,7 @@ class CustomTableCell: UITableViewCell {
         subtitleLabel.text = todos.subtitle
         statusButton.isSelected = todos.isCompleted
         
-        let imageName = todos.isCompleted ? "checkmark.circle.fill" : "circle.dashed"
+        let imageName = todos.isCompleted ? "checkmark.circle.fill" : "circle"
         statusButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
 }

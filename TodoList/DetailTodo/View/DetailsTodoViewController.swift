@@ -10,6 +10,8 @@ import UIKit
 class DetailsTodoViewController: UIViewController {
     
     var presenter: DetailsTodoPresenter?
+    private lazy var debounce = Debouncer(interval: 1)
+    private var timer: Timer?
     
     private let titleTextView: UITextView = {
         let textView = UITextView()
@@ -24,12 +26,15 @@ class DetailsTodoViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        tapGesture()
+        presenter?.startTodoItem()
     }
     
     private func setupUI() {
         view.backgroundColor = .black
         view.addSubview(titleTextView)
         setupTextViews()
+        setupNavigationBar()
     }
     
     private func setupConstraints() {
@@ -41,6 +46,41 @@ class DetailsTodoViewController: UIViewController {
         ])
     }
     
+    private func setupNavigationBar() {
+        let backButton = UIButton(type: .system)
+        
+        let image = UIImage(systemName: "chevron.left")
+        backButton.setImage(image, for: .normal)
+        backButton.setTitle("Назад", for: .normal)
+        
+        backButton.tintColor = .yellow
+        backButton.addTarget(
+            self,
+            action: #selector(backButtonTapped),
+            for: .touchUpInside
+        )
+        
+        let backBarItem = UIBarButtonItem(customView: backButton)
+        self.navigationItem.leftBarButtonItem = backBarItem
+    }
+    
+    private func tapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        tapGesture.delegate = self
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc
+    private func backButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc
+    private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     private func setupTextViews() {
         titleTextView.delegate = self
     }
@@ -48,18 +88,24 @@ class DetailsTodoViewController: UIViewController {
 
 extension DetailsTodoViewController: DetailsTodoView {
     
-    func showDetails(_ todoDetails: TodoListItem) {
+    func configure(with todo: TodoListItem?) {
+        guard let todo = todo else { return }
         
+        let fullText = "\(todo.title)\n\(todo.subtitle)"
+        titleTextView.text = fullText
+        updateTextStyles()
     }
 }
 
 extension DetailsTodoViewController: UITextViewDelegate {
+    
     func textViewDidChange(_ textView: UITextView) {
         updateTextStyles()
-    }
-    
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        updateTextStyles()
+        debounce.debonce { [weak self] in
+            guard let self = self else { return }
+           
+            self.presenter?.saveTodo(titleTextView.text)
+        }
     }
     
     private func updateTextStyles() {
@@ -89,5 +135,12 @@ extension DetailsTodoViewController: UITextViewDelegate {
             ], range: fullRange)
         }
         titleTextView.attributedText = attributedString
+    }
+}
+
+extension DetailsTodoViewController: UIGestureRecognizerDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

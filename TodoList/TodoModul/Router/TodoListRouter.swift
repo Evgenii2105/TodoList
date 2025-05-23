@@ -8,7 +8,5 @@
 import Foundation
 
 protocol TodoListRouter: AnyObject {
-    func showTodoDetails(_ todo: TodoListItem)
-    func showAddTodo()
-    func navigateToDetails(with todo: TodoListItem)
+    func navigateToDetails(with todo: TodoListItem?, listener: DetailsTodoListener)
 }

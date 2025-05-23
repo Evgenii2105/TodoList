@@ -7,9 +7,14 @@
 
 import UIKit
 
+protocol SearchHeaderViewListener: AnyObject {
+    func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String)
+}
+
 class SearchHeaderView: UITableViewHeaderFooterView {
     
     static let headerIdentifier = "SearchHeaderView"
+    weak var listener: SearchHeaderViewListener?
     
     private lazy var searchTextField: UITextField = {
         let searchTextField = UITextField()
@@ -83,10 +88,18 @@ class SearchHeaderView: UITableViewHeaderFooterView {
 
 extension SearchHeaderView: UITextFieldDelegate {
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard textField == searchTextField,
+              let text = textField.text,
+              let textRange = Range(range, in: text) else { return true }
+        
+        let updatedText = text.replacingCharacters(in: textRange, with: string)
+        listener?.searchHeaderView(self, didUpdateSearchText: updatedText)
+        return true
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == searchTextField {
-            searchTextField.resignFirstResponder()
-        }
+        textField.resignFirstResponder()
         return true
     }
 }

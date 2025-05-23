@@ -10,21 +10,26 @@ import Foundation
 final class TodoListPresenterimpl {
     
     weak var view: TodoListView?
-    
     private let interactor: TodoListInteractor?
-    private let router: TodoListRouter?
 
-    init(view: TodoListView? = nil, interactor: TodoListInteractor, router: TodoListRouter?) {
+    init(view: TodoListView? = nil, interactor: TodoListInteractor) {
         self.view = view
         self.interactor = interactor
-        self.router = router
     }
 }
 
 extension TodoListPresenterimpl: TodoListPresenter {
+    
+    func didUpdateTodoListItem(with todo: TodoListItem) {
+        view?.insertTodos(todo)
+    }
+    
+    func makeTodoDetailPresenter(todo: TodoListItem?) {
+        interactor?.makeTodoDetailInteractor(todo: todo)
+    }
    
     func didTapAddNewTodo(_ todo: TodoListItem) {
-        router?.navigateToDetails(with: todo)
+        view?.insertTodos(todo)
     }
     
     func fetchTodos() {
@@ -32,9 +37,7 @@ extension TodoListPresenterimpl: TodoListPresenter {
     }
     
     func didFetchTodos(_ items: [TodoListItem]) {
-        DispatchQueue.main.async {
-            self.view?.showTodos(items)
-        }
+        self.view?.showTodos(items)
     }
     
     func didFailToFetchTodos(with error: Error) {
@@ -47,5 +50,9 @@ extension TodoListPresenterimpl: TodoListPresenter {
     
     func didRemoveTodo(at index: Int) {
         view?.removeTodo(index: index)
+    }
+    
+    func searchTodo(with query: String?) {
+        interactor?.searchTodo(with: query)
     }
 }

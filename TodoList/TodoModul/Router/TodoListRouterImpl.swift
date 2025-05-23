@@ -7,11 +7,11 @@
 
 import UIKit
 
-final class TodoListRouterimpl: TodoListRouter, DetailsTodoRouter {
+final class TodoListRouterimpl: TodoListRouter {
     
     weak var viewController: UIViewController?
     
-    func navigateToDetails(with todo: TodoListItem) {
+    func navigateToDetails(with todo: TodoListItem?, listener: DetailsTodoListener) {
         let view = DetailsTodoViewController()
         let interactor = DetailsTodoInteractorImpl()
         let router = DetailsTodoRouterImpl()
@@ -19,21 +19,14 @@ final class TodoListRouterimpl: TodoListRouter, DetailsTodoRouter {
             view: view,
             todoDetails: todo,
             interactor: interactor,
-            router: router 
         )
         
         view.presenter = presenter
         interactor.presenter = presenter
+        interactor.router = router
+        interactor.listener = listener
         router.viewController = view
         
         viewController?.navigationController?.pushViewController(view, animated: true)
-    }
-    
-    func showTodoDetails(_ todo: TodoListItem) {
-        
-    }
-    
-    func showAddTodo() {
-        
     }
 }

@@ -8,10 +8,11 @@
 import UIKit
 
 class TodoListInteractorimpl: TodoListInteractor {
-   
+        
     weak var presenter: TodoListPresenter?
     private let dataManager: DataManagerService = DataManagerServiceImpl()
     private var todos: [TodoListItem] = []
+    var router: TodoListRouter?
     
     func fetchTodos() {
         dataManager.getTodos { [weak self] result in
@@ -19,7 +20,9 @@ class TodoListInteractorimpl: TodoListInteractor {
             case .success(let response):
                 let items = response.todos.map({ $0.toCellTodo() })
                 self?.todos = items
-                self?.presenter?.didFetchTodos(items)
+                DispatchQueue.main.async {
+                    self?.presenter?.didFetchTodos(items)
+                }
             case .failure(let error):
                 self?.presenter?.didFailToFetchTodos(with: error)
             }
@@ -30,5 +33,32 @@ class TodoListInteractorimpl: TodoListInteractor {
         guard index < todos.count else { return }
         todos.remove(at: index)
         presenter?.didRemoveTodo(at: index)
+    }
+    
+    func searchTodo(with query: String?) {
+        guard let query = query, !query.isEmpty else {
+            presenter?.didFetchTodos(todos)
+            return
+        }
+        
+        let queryLow = query.lowercased()
+        
+        let filteredTodos = todos.filter({
+            $0.title.lowercased().contains(queryLow) ||
+            $0.subtitle.lowercased().contains(queryLow)
+        })
+        presenter?.didFetchTodos(filteredTodos)
+    }
+
+    
+    func makeTodoDetailInteractor(todo: TodoListItem?) {
+        router?.navigateToDetails(with: todo, listener: self)
+    }
+}
+
+extension TodoListInteractorimpl: DetailsTodoListener {
+    
+    func saveTodo(_ todoListItem: TodoListItem) {
+        presenter?.didUpdateTodoListItem(with: todoListItem)
     }
 }

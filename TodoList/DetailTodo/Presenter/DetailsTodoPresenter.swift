@@ -8,5 +8,6 @@
 import Foundation
 
 protocol DetailsTodoPresenter: AnyObject {
-    func showDetails(_ todosDetails: TodoListItem)
+    func saveTodo(_ text: String?)
+    func startTodoItem()
 }

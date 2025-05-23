@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol DetailsTodoListener: AnyObject {
+    func saveTodo(_ todoListItem: TodoListItem)
+}
+
 protocol DetailsTodoInteractor: AnyObject {
-    func showDetailsTodo(_ detailsTodos: TodoListItem)
+    func saveTodo(item todo: TodoListItem?)
 }

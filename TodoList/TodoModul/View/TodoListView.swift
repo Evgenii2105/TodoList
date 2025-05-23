@@ -10,4 +10,6 @@ import Foundation
 protocol TodoListView: AnyObject {
     func showTodos(_ todos: [TodoListItem])
     func removeTodo(index: Int)
+    func insertTodos(_ todo: TodoListItem)
+  //  func didConfigureDetailsPresenter(detailsPresenter: TodoListPresenterimpl)
 }

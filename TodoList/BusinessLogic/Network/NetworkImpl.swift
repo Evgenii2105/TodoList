@@ -9,26 +9,26 @@ import UIKit
 
 class NetworkImpl {
     
-    static func downloadTodo(from url: URL, complition: @escaping(Result<String, NetworkError>) -> Void) {
-        
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                complition(.failure(.dicodingFailed(error)))
-                return
-            }
-            
-            guard let data = data else {
-                complition(.failure(.noData))
-                return
-            }
-            
-            guard let todos = String(data: data, encoding: .utf8) else {
-                complition(.failure(.invalidURL))
-                return
-            }
-            complition(.success(todos))
-        }.resume()
-    }
+//    static func downloadTodo(from url: URL, complition: @escaping(Result<String, NetworkError>) -> Void) {
+//        
+//        URLSession.shared.dataTask(with: url) { data, _, error in
+//            if let error = error {
+//                complition(.failure(.dicodingFailed(error)))
+//                return
+//            }
+//            
+//            guard let data = data else {
+//                complition(.failure(.noData))
+//                return
+//            }
+//            
+//            guard let todos = String(data: data, encoding: .utf8) else {
+//                complition(.failure(.invalidURL))
+//                return
+//            }
+//            complition(.success(todos))
+//        }.resume()
+//    }
     
     func request<T: Decodable>(endPoint: EndPoint,
                                completion: @escaping (Result<T, NetworkError>) -> Void) {
