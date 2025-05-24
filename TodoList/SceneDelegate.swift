@@ -17,9 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let view = TodoListViewController()
-        let interactor = TodoListInteractorimpl()
+        let interactor = TodoListInteractorImpl()
         let router = TodoListRouterimpl()
-        let presenter = TodoListPresenterimpl(
+        let presenter = TodoListPresenterImpl(
             view: view,
             interactor: interactor
         )

@@ -11,9 +11,9 @@ final class TodoListModuleBuilder {
     
     static func build() -> UIViewController {
         let view = TodoListViewController()
-        let interactor = TodoListInteractorimpl()
+        let interactor = TodoListInteractorImpl()
         let router = TodoListRouterimpl()
-        let presenter = TodoListPresenterimpl(view: view, interactor: interactor)
+        let presenter = TodoListPresenterImpl(view: view, interactor: interactor)
         
         view.presenter = presenter
         presenter.view = view

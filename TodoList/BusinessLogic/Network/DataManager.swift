@@ -11,7 +11,7 @@ protocol DataManagerService: AnyObject {
     func getTodos(completion: @escaping (Result<TodoModels, NetworkError>) -> Void)
 }
 
-class DataManagerServiceImpl: DataManagerService {
+final class DataManagerServiceImpl: DataManagerService {
   
     private let client = NetworkImpl()
     
