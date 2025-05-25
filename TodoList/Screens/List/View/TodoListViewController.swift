@@ -24,7 +24,7 @@ final class TodoListViewController: UIViewController {
         return todoTable
     }()
     
-    private lazy var toolBar: UIToolbar = {
+    private lazy var flexibleSpace: UIToolbar = {
         let toolBar = UIToolbar()
         let addNewTodoButton = UIBarButtonItem(
             image: UIImage(systemName: "bubble.and.pencil"),
@@ -65,12 +65,17 @@ final class TodoListViewController: UIViewController {
         presenter?.fetchTodos()
         todoTable.refreshControl = refreshControl
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupNavigationBar()
+    }
 }
 
 private extension TodoListViewController {
     func setupUI() {
         view.addSubview(todoTable)
-        view.addSubview(toolBar)
+        view.addSubview(flexibleSpace)
         view.backgroundColor = .black
         todoTable.addSubview(placeHolderLabel)
     }
@@ -83,12 +88,12 @@ private extension TodoListViewController {
             todoTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
         
-        toolBar.addConstraint(constraints: [
-            toolBar.topAnchor.constraint(equalTo: todoTable.bottomAnchor),
-            toolBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            toolBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            toolBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            toolBar.heightAnchor.constraint(equalToConstant: 44),
+        flexibleSpace.addConstraint(constraints: [
+            flexibleSpace.topAnchor.constraint(equalTo: todoTable.bottomAnchor),
+            flexibleSpace.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            flexibleSpace.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            flexibleSpace.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            flexibleSpace.heightAnchor.constraint(equalToConstant: 44),
         ])
         
         placeHolderLabel.addConstraint(constraints: [
@@ -148,9 +153,31 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
         todos.count
     }
     
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let configuration = UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil) { [weak self] _ in
+                guard let self else { return nil }
+                
+                let editAction = UIAction(title: "Редактировать") { _ in
+                    self.presenter?.showDetails(state: .update(self.todos[indexPath.row]))
+                }
+                
+                let shareAction = UIAction(title: "Поделиться") { _ in
+                    print("Редактировать")
+                }
+                
+                let removeAction = UIAction(title: "Удалить") { _ in
+                    self.presenter?.remove(at: indexPath.row)
+                }
+                return UIMenu(children: [editAction, shareAction, removeAction])
+            }
+        return configuration
+    }
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: SearchHeaderView.headerIdentifier) as? SearchHeaderView else { return nil }
-        header.listener = self
+        header.delegate = self
         return header
     }
     
@@ -187,6 +214,9 @@ extension TodoListViewController: TodoListView {
     func insertTodos(_ todo: TodoListItem) {
         if let index = self.todos.firstIndex(where: { $0.id == todo.id }) {
             todos[index] = todo
+            todoTable.performBatchUpdates {
+                todoTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            }
         } else {
             self.todos.insert(todo, at: self.todos.startIndex)
             
@@ -205,16 +235,16 @@ extension TodoListViewController: TodoListView {
     }
     
     func showTodos(_ todos: [TodoListItem]) {
-        self.todos = []
+        self.todos = todos
         todoTable.reloadData()
         
-        if !self.todos.isEmpty {
+        if !todos.isEmpty {
             todoTable.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
         }
     }
 }
 
-extension TodoListViewController: SearchHeaderViewListener {
+extension TodoListViewController: SearchHeaderViewDelegate {
     
     func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String) {
         presenter?.searchTodo(with: text)

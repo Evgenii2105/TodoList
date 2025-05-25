@@ -7,14 +7,14 @@
 
 import UIKit
 
-protocol SearchHeaderViewListener: AnyObject {
+protocol SearchHeaderViewDelegate: AnyObject {
     func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String)
 }
 
 class SearchHeaderView: UITableViewHeaderFooterView {
     
     static let headerIdentifier = "SearchHeaderView"
-    weak var listener: SearchHeaderViewListener?
+    weak var delegate : SearchHeaderViewDelegate?
     
     private lazy var searchTextField: UITextField = {
         let searchTextField = UITextField()
@@ -92,7 +92,7 @@ extension SearchHeaderView: UITextFieldDelegate {
               let textRange = Range(range, in: text) else { return true }
         
         let updatedText = text.replacingCharacters(in: textRange, with: string)
-        listener?.searchHeaderView(self, didUpdateSearchText: updatedText)
+        delegate?.searchHeaderView(self, didUpdateSearchText: updatedText)
         return true
     }
     

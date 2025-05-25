@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D2B678542DE3482F00611A08 /* TodoItem+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B678522DE3482F00611A08 /* TodoItem+CoreDataClass.swift */; };
+		D2B678552DE3482F00611A08 /* TodoItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B678532DE3482F00611A08 /* TodoItem+CoreDataProperties.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D2F25D4F2DDC773A00408C6A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D2B678522DE3482F00611A08 /* TodoItem+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoItem+CoreDataClass.swift"; sourceTree = "<group>"; };
+		D2B678532DE3482F00611A08 /* TodoItem+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoItem+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D2F25D352DDC773900408C6A /* TodoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F25D4E2DDC773A00408C6A /* TodoListTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoListTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F25D582DDC773A00408C6A /* TodoListUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoListUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +95,8 @@
 		D2F25D2C2DDC773900408C6A = {
 			isa = PBXGroup;
 			children = (
+				D2B678522DE3482F00611A08 /* TodoItem+CoreDataClass.swift */,
+				D2B678532DE3482F00611A08 /* TodoItem+CoreDataProperties.swift */,
 				D2F25D372DDC773900408C6A /* TodoList */,
 				D2F25D512DDC773A00408C6A /* TodoListTests */,
 				D2F25D5B2DDC773A00408C6A /* TodoListUITests */,
@@ -249,6 +258,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2B678542DE3482F00611A08 /* TodoItem+CoreDataClass.swift in Sources */,
+				D2B678552DE3482F00611A08 /* TodoItem+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

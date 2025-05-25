@@ -10,7 +10,7 @@ import CoreData
 
 public final class CoreDataManager: NSObject {
     
-    static let shared = CoreDataManager()
+    public static let shared = CoreDataManager()
     
     private override init() {}
     
@@ -22,7 +22,12 @@ public final class CoreDataManager: NSObject {
         appDelegate.persistentContainer.viewContext
     }
     
-    public func createTodo(_ todo: String) {
-        
+    // create
+    // read
+    // update
+    // delete
+    
+    public func createTodo(title: String, subtitle: String, userId: Int, ptiority: Int16 = 0) {
+        // let newItem = TodoItem(entity: <#T##NSEntityDescription#>, insertInto: <#T##NSManagedObjectContext?#>)
     }
 }

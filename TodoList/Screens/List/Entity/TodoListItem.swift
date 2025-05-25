@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreData
 
 struct TodoListItem {
     let id: Int
@@ -13,4 +14,5 @@ struct TodoListItem {
     let title: String
     let subtitle: String
     let isCompleted: Bool
+    let date: Date
 }

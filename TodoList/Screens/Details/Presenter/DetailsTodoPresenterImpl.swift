@@ -34,7 +34,8 @@ final class DetailsTodoPresenterImpl: DetailsTodoPresenter {
                 userId: 1,
                 title: title,
                 subtitle: subtitle,
-                isCompleted: false
+                isCompleted: false,
+                date: Date.now
             )
         case .update(let todoListItem):
             item = TodoListItem(
@@ -42,7 +43,8 @@ final class DetailsTodoPresenterImpl: DetailsTodoPresenter {
                 userId: todoListItem.userId,
                 title: title,
                 subtitle: subtitle,
-                isCompleted: todoListItem.isCompleted
+                isCompleted: todoListItem.isCompleted,
+                date: Date.now
             )
         }
         self.state = .update(item)

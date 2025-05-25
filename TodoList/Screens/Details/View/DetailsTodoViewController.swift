@@ -10,7 +10,7 @@ import UIKit
 final class DetailsTodoViewController: UIViewController {
     
     var presenter: DetailsTodoPresenter?
-    private lazy var debounce = Debouncer(interval: 1)
+    private lazy var debounce = Debouncer(interval: 0.5)
     private var timer: Timer?
     
     private let titleTextView: UITextView = {
@@ -36,15 +36,14 @@ extension DetailsTodoViewController: DetailsTodoView {
         guard case let .update(item) = state else { return }
         
         let fullText = "\(item.title)\n\(item.subtitle)"
-        titleTextView.text = fullText
-        updateTextStyles()
+        updateTextStyles(text: fullText)
     }
 }
 
 extension DetailsTodoViewController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
-        updateTextStyles()
+        updateTextStyles(text: textView.text)
         debounce.debonce { [weak self] in
             guard let self = self else { return }
            
@@ -94,6 +93,8 @@ private extension DetailsTodoViewController {
         
         let backBarItem = UIBarButtonItem(customView: backButton)
         self.navigationItem.leftBarButtonItem = backBarItem
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationItem.largeTitleDisplayMode = .never
     }
     
     func tapGesture() {
@@ -117,8 +118,8 @@ private extension DetailsTodoViewController {
         titleTextView.delegate = self
     }
     
-    func updateTextStyles() {
-        guard let text = titleTextView.text, !text.isEmpty else { return }
+    func updateTextStyles(text: String) {
+        guard !text.isEmpty else { return }
         
         let attributedString = NSMutableAttributedString(string: text)
         let fullRange = NSRange(location: 0, length: text.utf16.count)

@@ -60,6 +60,12 @@ final class TodoListInteractorImpl: TodoListInteractor {
 extension TodoListInteractorImpl: DetailsTodoListener {
     
     func saveTodo(_ todoListItem: TodoListItem) {
+        
+        if let index = self.todos.firstIndex(where: { $0.id == todoListItem.id }) {
+            todos[index] = todoListItem
+        } else {
+            self.todos.insert(todoListItem, at: self.todos.startIndex)
+        }
         presenter?.didUpdateTodoListItem(with: todoListItem)
     }
 }

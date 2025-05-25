@@ -18,7 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: UISceneSession Lifecycle
 
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
@@ -28,10 +30,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Core Data stack
 
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "TodoList")
+        let container = NSPersistentContainer(name: "TodoItem")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+            if let error {
+                print(error.localizedDescription)
             } else {
                 print("DB URL -", storeDescription.url?.absoluteString)
             }
@@ -47,8 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             do {
                 try context.save()
             } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                let error = error as NSError
+                fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         }
     }

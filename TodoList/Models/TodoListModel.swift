@@ -37,7 +37,8 @@ extension TodoListModel {
             userId: userId,
             title: todo,
             subtitle: "",
-            isCompleted: completed
+            isCompleted: completed,
+            date: TodoListHelper.array.randomElement() ?? Date.now
         )
     }
 }

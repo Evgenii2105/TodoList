@@ -15,6 +15,12 @@ class CustomTableCell: UITableViewCell {
     
     static let celIdentifire = "CustomTableCell"
     
+    private static let formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yy"
+        return formatter
+    }()
+    
     weak var delegate: CustomTableDelegate?
     
     private let statusButton: UIButton = {
@@ -24,9 +30,12 @@ class CustomTableCell: UITableViewCell {
         return statusButton
     }()
     
-    private let dateLabel: Date = {
-        let dateLabel = Date()
-      //  dateLabel.
+    private let dateLabel: UILabel = {
+        let dateLabel = UILabel()
+        dateLabel.textColor = .lightGray
+        dateLabel.font = .systemFont(ofSize: 12, weight: .light)
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.backgroundColor = .clear
         return dateLabel
     }()
     
@@ -48,18 +57,12 @@ class CustomTableCell: UITableViewCell {
         return subtitleLabel
     }()
     
-    private let container: UIView = {
-       let container = UIView()
-        container.backgroundColor = .clear
-        return container
-    }()
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(container)
         contentView.addSubview(statusButton)
         contentView.addSubview(titleLabel)
         contentView.addSubview(subtitleLabel)
+        contentView.addSubview(dateLabel)
         setupConstraints()
         contentView.backgroundColor = .black
         
@@ -73,30 +76,29 @@ class CustomTableCell: UITableViewCell {
     private func setupConstraints() {
         
         statusButton.addConstraint(constraints: [
-            statusButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            statusButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             statusButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             statusButton.widthAnchor.constraint(equalToConstant: 50),
             statusButton.heightAnchor.constraint(equalToConstant: 50),
         ])
-        
-        container.addConstraint(constraints: [
-            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            container.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
-            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-        ])
-        
+                
         titleLabel.addConstraint(constraints: [
-            titleLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
-            titleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
-            titleLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
         ])
         
         subtitleLabel.addConstraint(constraints: [
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            subtitleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
-            subtitleLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
-            subtitleLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8)
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            subtitleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+        ])
+        
+        dateLabel.addConstraint(constraints: [
+            dateLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 8),
+            dateLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
+            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32)
         ])
     }
     
@@ -110,11 +112,24 @@ class CustomTableCell: UITableViewCell {
     }
     
     func configure(todos: TodoListItem) {
-        titleLabel.text = todos.title
-        subtitleLabel.text = todos.subtitle
         statusButton.isSelected = todos.isCompleted
+        dateLabel.text = Self.formatter.string(from: todos.date)
         
         let imageName = todos.isCompleted ? "checkmark.circle.fill" : "circle"
         statusButton.setImage(UIImage(systemName: imageName), for: .normal)
+        
+        subtitleLabel.text = todos.subtitle.isEmpty ? "Текст отсутвует" : todos.subtitle
+        
+        if todos.isCompleted {
+            let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: "\(todos.title)")
+            attributeString.addAttributes([
+                .strikethroughStyle: 2,
+                .foregroundColor: UIColor.white
+            ], range: NSRange(location: 0, length: attributeString.length))
+            titleLabel.attributedText = attributeString
+        } else {
+            titleLabel.attributedText = nil
+            titleLabel.text = todos.title
+        }
     }
-}
+} 
