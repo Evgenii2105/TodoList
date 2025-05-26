@@ -7,13 +7,18 @@
 
 import UIKit
 
-protocol CustomTableDelegate: AnyObject {
-    func tapStatusButton(cell: CustomTableCell, isSelected: Bool)
+protocol TodoCellDelegate: AnyObject {
+    func tapStatusButton(cell: TodoCell, isSelected: Bool)
 }
 
-class CustomTableCell: UITableViewCell {
+class TodoCell: UITableViewCell {
     
-    static let celIdentifire = "CustomTableCell"
+    private enum Constants {
+        static let padding: CGFloat = 8
+        static let statusButtonFrame = CGRect(x: 16, y: 16, width: 50, height: 50)
+    }
+    
+    static let celIdentifier = "TodoCell"
     
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -21,7 +26,7 @@ class CustomTableCell: UITableViewCell {
         return formatter
     }()
     
-    weak var delegate: CustomTableDelegate?
+    weak var delegate: TodoCellDelegate?
     
     private let statusButton: UIButton = {
        let statusButton = UIButton()
@@ -76,29 +81,28 @@ class CustomTableCell: UITableViewCell {
     private func setupConstraints() {
         
         statusButton.addConstraint(constraints: [
-            statusButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            statusButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            statusButton.widthAnchor.constraint(equalToConstant: 50),
-            statusButton.heightAnchor.constraint(equalToConstant: 50),
+            statusButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.statusButtonFrame.origin.y),
+            statusButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.statusButtonFrame.origin.x),
+            statusButton.widthAnchor.constraint(equalToConstant: Constants.statusButtonFrame.width),
+            statusButton.heightAnchor.constraint(equalToConstant: Constants.statusButtonFrame.height)
         ])
                 
         titleLabel.addConstraint(constraints: [
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.padding),
+            titleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: Constants.padding),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.padding)
         ])
         
         subtitleLabel.addConstraint(constraints: [
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            subtitleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
-            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.padding),
+            subtitleLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: Constants.padding),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.padding)
         ])
         
         dateLabel.addConstraint(constraints: [
-            dateLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 8),
-            dateLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: 8),
-            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32)
+            dateLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: Constants.padding),
+            dateLabel.leadingAnchor.constraint(equalTo: statusButton.trailingAnchor, constant: Constants.padding),
+            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.padding)
         ])
     }
     
@@ -108,6 +112,7 @@ class CustomTableCell: UITableViewCell {
         let imageName = sender.isSelected ? "checkmark.circle.fill" : "circle"
         sender.setImage(UIImage(systemName: imageName), for: .normal)
         
+        updateTitleLabel(todoTitle: titleLabel.text ?? "", isCompleted: sender.isSelected)
         delegate?.tapStatusButton(cell: self, isSelected: sender.isSelected)
     }
     
@@ -117,19 +122,20 @@ class CustomTableCell: UITableViewCell {
         
         let imageName = todos.isCompleted ? "checkmark.circle.fill" : "circle"
         statusButton.setImage(UIImage(systemName: imageName), for: .normal)
-        
+        updateTitleLabel(todoTitle: todos.title, isCompleted: todos.isCompleted)
         subtitleLabel.text = todos.subtitle.isEmpty ? "Текст отсутвует" : todos.subtitle
-        
-        if todos.isCompleted {
-            let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: "\(todos.title)")
-            attributeString.addAttributes([
-                .strikethroughStyle: 2,
-                .foregroundColor: UIColor.white
-            ], range: NSRange(location: 0, length: attributeString.length))
-            titleLabel.attributedText = attributeString
-        } else {
-            titleLabel.attributedText = nil
-            titleLabel.text = todos.title
-        }
     }
-} 
+    
+    private func  updateTitleLabel(todoTitle: String, isCompleted: Bool) {
+            let attributedString = NSMutableAttributedString(string: todoTitle)
+            
+            if isCompleted {
+                attributedString.addAttributes([
+                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                    .strikethroughColor: UIColor.white,
+                    .foregroundColor: UIColor.white
+                ], range: NSRange(location: 0, length: attributedString.length))
+            }
+            titleLabel.attributedText = attributedString
+    }
+}

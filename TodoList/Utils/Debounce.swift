@@ -16,9 +16,8 @@ final class Debouncer {
         self.interval = interval
     }
     
-    func debonce(action: @escaping () -> Void) {
-        timer?.invalidate()
-        
+    func debounce(action: @escaping () -> Void) {
+        cancel()
         timer = Timer.scheduledTimer(
             withTimeInterval: interval,
             repeats: false,

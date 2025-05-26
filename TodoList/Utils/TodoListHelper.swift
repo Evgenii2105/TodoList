@@ -16,7 +16,6 @@ enum TodoListHelper {
         formatter.dateFormat = "yyyy-MM-dd"
         let startDate = formatter.date(from: "2020-01-01")!
         let endDate = formatter.date(from: "2025-05-23")!
-     //   let randomDate = Date.randomBetween(start: startDate, end: endDate)
         for date in 0..<40 {
             array.append(Date.randomBetween(start: startDate, end: endDate))
         }
@@ -29,7 +28,7 @@ extension Date {
         let date1 = min(start, end)
         var date2 = max(start, end)
         if date1 == date2 {
-            date2 = date1.addingTimeInterval(120) // добавляем 2 минуты, если даты совпадают
+            date2 = date1.addingTimeInterval(120) 
         }
         let timeIntervalRange = date1.timeIntervalSince1970...date2.timeIntervalSince1970
         let randomTimeInterval = TimeInterval.random(in: timeIntervalRange)

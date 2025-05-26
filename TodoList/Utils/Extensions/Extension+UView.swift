@@ -11,7 +11,6 @@ extension UIView {
     
     func addConstraint(constraints: [NSLayoutConstraint]) {
         translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate(
             constraints
         )

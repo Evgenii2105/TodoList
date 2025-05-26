@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SearchHeaderViewDelegate: AnyObject {
-    func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String)
+    func searchHeaderView(didUpdateSearchText text: String)
 }
 
 class SearchHeaderView: UITableViewHeaderFooterView {
@@ -79,6 +79,7 @@ class SearchHeaderView: UITableViewHeaderFooterView {
     }
     
     private func setupUI() {
+        contentView.backgroundColor = .black
         contentView.addSubview(searchTextField)
         searchTextField.delegate = self
     }
@@ -86,13 +87,17 @@ class SearchHeaderView: UITableViewHeaderFooterView {
 
 extension SearchHeaderView: UITextFieldDelegate {
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard textField == searchTextField,
               let text = textField.text,
               let textRange = Range(range, in: text) else { return true }
         
         let updatedText = text.replacingCharacters(in: textRange, with: string)
-        delegate?.searchHeaderView(self, didUpdateSearchText: updatedText)
+        delegate?.searchHeaderView(didUpdateSearchText: updatedText)
         return true
     }
     

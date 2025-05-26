@@ -56,6 +56,4 @@ final class DetailsTodoPresenterImpl: DetailsTodoPresenter {
     }
 }
 
-extension DetailsTodoPresenterImpl: DetailsTodoInteractorOutput {
-    // callback from interactor if needed
-}
+extension DetailsTodoPresenterImpl: DetailsTodoInteractorOutput {}

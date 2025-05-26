@@ -12,6 +12,4 @@ protocol DetailsTodoPresenter: AnyObject {
     func startTodoItem()
 }
 
-protocol DetailsTodoInteractorOutput {
-    // calbacks from interactor to Presenter
-}
+protocol DetailsTodoInteractorOutput {}

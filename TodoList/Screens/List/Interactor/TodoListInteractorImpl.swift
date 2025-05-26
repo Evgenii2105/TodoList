@@ -51,7 +51,6 @@ final class TodoListInteractorImpl: TodoListInteractor {
         presenter?.didFetchTodos(filteredTodos)
     }
 
-    
     func showDetails(state: TodoListItemState) {
         router?.navigateToDetails(with: state, listener: self)
     }

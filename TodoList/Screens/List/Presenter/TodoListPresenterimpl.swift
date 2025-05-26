@@ -12,7 +12,7 @@ final class TodoListPresenterImpl {
     weak var view: TodoListView?
     private let interactor: TodoListInteractor?
 
-    init(view: TodoListView? = nil, interactor: TodoListInteractor) {
+    init(view: TodoListView, interactor: TodoListInteractor) {
         self.view = view
         self.interactor = interactor
     }
@@ -52,6 +52,6 @@ extension TodoListPresenterImpl: TodoListInteractorOutput {
     }
     
     func didFailToFetchTodos(with error: Error) {
-        print("error")
+        view?.showError(message: error.localizedDescription)
     }
 }

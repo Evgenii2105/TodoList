@@ -24,7 +24,13 @@ final class TodoListViewController: UIViewController {
         return todoTable
     }()
     
-    private lazy var flexibleSpace: UIToolbar = {
+    private lazy var statusLabel: UILabel = {
+        let statusLabel = UILabel()
+        statusLabel.textColor = .white
+        return statusLabel
+    }()
+    
+    private lazy var toolBar: UIToolbar = {
         let toolBar = UIToolbar()
         let addNewTodoButton = UIBarButtonItem(
             image: UIImage(systemName: "bubble.and.pencil"),
@@ -33,11 +39,17 @@ final class TodoListViewController: UIViewController {
             }
         )
         addNewTodoButton.tintColor = .yellow
-        toolBar.setItems([.flexibleSpace(), addNewTodoButton], animated: false)
+
+        let statusBarButton = UIBarButtonItem(customView: statusLabel)
+        toolBar.setItems(
+            [.flexibleSpace(), statusBarButton, .flexibleSpace(), addNewTodoButton],
+            animated: false
+        )
         toolBar.isTranslucent = false
         toolBar.barTintColor = .black
         return toolBar
     }()
+
     
     private let placeHolderLabel: UILabel = {
         let placeHolderLabel = UILabel()
@@ -63,7 +75,7 @@ final class TodoListViewController: UIViewController {
         setupNavigationBar()
         createListFilmsTable()
         presenter?.fetchTodos()
-        todoTable.refreshControl = refreshControl
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -75,9 +87,10 @@ final class TodoListViewController: UIViewController {
 private extension TodoListViewController {
     func setupUI() {
         view.addSubview(todoTable)
-        view.addSubview(flexibleSpace)
+        view.addSubview(toolBar)
         view.backgroundColor = .black
         todoTable.addSubview(placeHolderLabel)
+        todoTable.refreshControl = refreshControl
     }
     
     func setupConstraints() {
@@ -88,12 +101,12 @@ private extension TodoListViewController {
             todoTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
         
-        flexibleSpace.addConstraint(constraints: [
-            flexibleSpace.topAnchor.constraint(equalTo: todoTable.bottomAnchor),
-            flexibleSpace.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            flexibleSpace.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            flexibleSpace.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            flexibleSpace.heightAnchor.constraint(equalToConstant: 44),
+        toolBar.addConstraint(constraints: [
+            toolBar.topAnchor.constraint(equalTo: todoTable.bottomAnchor),
+            toolBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            toolBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            toolBar.heightAnchor.constraint(equalToConstant: 44),
         ])
         
         placeHolderLabel.addConstraint(constraints: [
@@ -139,9 +152,14 @@ private extension TodoListViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
+    func updateTasksCount()  {
+        statusLabel.text = "\(todos.count) задач"
+        self.statusLabel.sizeToFit()
+    }
+    
     func createListFilmsTable() {
         todoTable.register(SearchHeaderView.self, forHeaderFooterViewReuseIdentifier: SearchHeaderView.headerIdentifier)
-        todoTable.register(CustomTableCell.self, forCellReuseIdentifier: CustomTableCell.celIdentifire)
+        todoTable.register(TodoCell.self, forCellReuseIdentifier: TodoCell.celIdentifier)
         todoTable.dataSource = self
         todoTable.delegate = self
     }
@@ -153,7 +171,11 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
         todos.count
     }
     
-    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
         let configuration = UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: nil) { [weak self] _ in
@@ -183,7 +205,7 @@ extension TodoListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableCell.celIdentifire, for: indexPath) as? CustomTableCell else { return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.celIdentifier, for: indexPath) as? TodoCell else { return UITableViewCell() }
         
         let todo = todos[indexPath.row]
         cell.configure(todos: todo)
@@ -214,20 +236,32 @@ extension TodoListViewController: TodoListView {
     func insertTodos(_ todo: TodoListItem) {
         if let index = self.todos.firstIndex(where: { $0.id == todo.id }) {
             todos[index] = todo
+            updateTasksCount()
             todoTable.performBatchUpdates {
                 todoTable.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
             }
         } else {
             self.todos.insert(todo, at: self.todos.startIndex)
-            
+            updateTasksCount()
             todoTable.performBatchUpdates {
                 todoTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
             }
         }
     }
     
+    func showError(message: String) {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
     func removeTodo(index: Int) {
         todos.remove(at: index)
+        updateTasksCount()
         
         todoTable.performBatchUpdates {
             todoTable.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
@@ -236,6 +270,7 @@ extension TodoListViewController: TodoListView {
     
     func showTodos(_ todos: [TodoListItem]) {
         self.todos = todos
+        updateTasksCount()
         todoTable.reloadData()
         
         if !todos.isEmpty {
@@ -246,7 +281,7 @@ extension TodoListViewController: TodoListView {
 
 extension TodoListViewController: SearchHeaderViewDelegate {
     
-    func searchHeaderView(_ headerView: SearchHeaderView, didUpdateSearchText text: String) {
+    func searchHeaderView(didUpdateSearchText text: String) {
         presenter?.searchTodo(with: text)
     }
 }

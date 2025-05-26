@@ -14,8 +14,7 @@ final class DetailsTodoInteractorImpl: DetailsTodoInteractor {
     var router: DetailsTodoRouter?
     weak var listener: DetailsTodoListener?
     
-    func saveTodo(item todo: TodoListItem?) {
-        guard let todo = todo else { return }
+    func saveTodo(item todo: TodoListItem) {
         listener?.saveTodo(todo)
     }
 }

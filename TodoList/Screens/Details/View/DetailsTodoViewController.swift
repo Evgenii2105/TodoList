@@ -36,15 +36,15 @@ extension DetailsTodoViewController: DetailsTodoView {
         guard case let .update(item) = state else { return }
         
         let fullText = "\(item.title)\n\(item.subtitle)"
-        updateTextStyles(text: fullText)
+        titleTextView.attributedText = formatted(text: fullText)
     }
 }
 
 extension DetailsTodoViewController: UITextViewDelegate {
     
     func textViewDidChange(_ textView: UITextView) {
-        updateTextStyles(text: textView.text)
-        debounce.debonce { [weak self] in
+        titleTextView.attributedText = formatted(text: textView.text)
+        debounce.debounce { [weak self] in
             guard let self = self else { return }
            
             self.presenter?.saveTodo(titleTextView.text)
@@ -54,7 +54,10 @@ extension DetailsTodoViewController: UITextViewDelegate {
 
 extension DetailsTodoViewController: UIGestureRecognizerDelegate {
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
         return true
     }
 }
@@ -118,8 +121,8 @@ private extension DetailsTodoViewController {
         titleTextView.delegate = self
     }
     
-    func updateTextStyles(text: String) {
-        guard !text.isEmpty else { return }
+    func formatted(text: String) -> NSAttributedString {
+        guard !text.isEmpty else { return NSAttributedString(string: "") }
         
         let attributedString = NSMutableAttributedString(string: text)
         let fullRange = NSRange(location: 0, length: text.utf16.count)
@@ -144,6 +147,6 @@ private extension DetailsTodoViewController {
                 .foregroundColor: UIColor.white
             ], range: fullRange)
         }
-        titleTextView.attributedText = attributedString
+        return attributedString
     }
 }

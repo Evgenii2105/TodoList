@@ -12,5 +12,5 @@ protocol DetailsTodoListener: AnyObject {
 }
 
 protocol DetailsTodoInteractor: AnyObject {
-    func saveTodo(item todo: TodoListItem?)
+    func saveTodo(item todo: TodoListItem)
 }
