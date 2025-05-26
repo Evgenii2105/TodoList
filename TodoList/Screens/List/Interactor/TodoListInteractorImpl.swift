@@ -6,11 +6,15 @@
 //
 
 import UIKit
+import CoreData
+
+import UIKit
 
 final class TodoListInteractorImpl: TodoListInteractor {
-        
+    
     weak var presenter: TodoListInteractorOutput?
     private let dataManager: DataManagerService = DataManagerServiceImpl()
+    private let coreDataManager: CoreDataManager = .shared
     private var todos: [TodoListItem] = []
     var router: TodoListRouter?
     
@@ -50,7 +54,7 @@ final class TodoListInteractorImpl: TodoListInteractor {
         })
         presenter?.didFetchTodos(filteredTodos)
     }
-
+    
     func showDetails(state: TodoListItemState) {
         router?.navigateToDetails(with: state, listener: self)
     }
@@ -68,3 +72,4 @@ extension TodoListInteractorImpl: DetailsTodoListener {
         presenter?.didUpdateTodoListItem(with: todoListItem)
     }
 }
+

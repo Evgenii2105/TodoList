@@ -26,7 +26,7 @@ extension TodoItem {
     @NSManaged public var subtitle: String?
     @NSManaged public var isCompleted: Bool
     @NSManaged public var userId: Int64
-
+    @NSManaged public var date: Date
 }
 
 extension TodoItem: Identifiable {
