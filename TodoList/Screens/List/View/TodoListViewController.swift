@@ -50,7 +50,6 @@ final class TodoListViewController: UIViewController {
         return toolBar
     }()
 
-    
     private let placeHolderLabel: UILabel = {
         let placeHolderLabel = UILabel()
         placeHolderLabel.text = "Нет записей"
@@ -75,7 +74,6 @@ final class TodoListViewController: UIViewController {
         setupNavigationBar()
         createListFilmsTable()
         presenter?.fetchTodos()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -94,7 +92,6 @@ private extension TodoListViewController {
     }
     
     func setupConstraints() {
-        
         todoTable.addConstraint(constraints: [
             todoTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             todoTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -153,7 +150,7 @@ private extension TodoListViewController {
     }
     
     func updateTasksCount()  {
-        statusLabel.text = "\(todos.count) задач"
+        statusLabel.text = "\(todos.count) задач(а)"
         self.statusLabel.sizeToFit()
     }
     

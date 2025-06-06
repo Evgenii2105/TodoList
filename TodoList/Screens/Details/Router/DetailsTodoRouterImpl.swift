@@ -10,5 +10,4 @@ import UIKit
 class DetailsTodoRouterImpl: DetailsTodoRouter {
     
     weak var viewController: UIViewController?
-    
 }

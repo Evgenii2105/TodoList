@@ -5,39 +5,41 @@
 //  Created by Евгений Фомичев on 22.05.2025.
 //
 
-import UIKit
+import Foundation
 import CoreData
+
+enum CoreDataError: Error {
+    case entityNotFound(String)
+    case contextNotAvailable
+    case saveFailed(Error)
+}
 
 public final class CoreDataManager: NSObject {
     
     public static let shared = CoreDataManager()
-    
     private override init() {}
-    
-    private var appDelegate: AppDelegate {
-        UIApplication.shared.delegate as! AppDelegate
-    }
     
     private var context: NSManagedObjectContext {
         persistentContainer.viewContext
     }
     
     // MARK: - Core Data stack
+    private let persistentContainer: NSPersistentContainer = {
+            let container = NSPersistentContainer(name: Bundle.main.object(forInfoDictionaryKey: kCFBundleNameKey as String) as! String)
+            container.loadPersistentStores(completionHandler: { _, error in
+                if let error {
+                    fatalError("Unresolved error \(error)")
+                }
+            })
+            print(container.persistentStoreCoordinator.persistentStores.first!.url!)
+            return container
+        }()
 
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "TodoItem")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error {
-                print(error.localizedDescription)
-            } else {
-                print("DB URL -", storeDescription.url?.absoluteString)
-            }
-        })
-        return container
-    }()
-
+    func entityDescription(name: String) -> NSEntityDescription? {
+        return NSEntityDescription.entity(forEntityName: name, in: context)
+    }
+    
     // MARK: - Core Data Saving support
-
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -50,51 +52,16 @@ public final class CoreDataManager: NSObject {
         }
     }
     
- // MARK: - CRUD
-    
-    public func createTodo(
-        title: String,
-        subtitle: String,
-        userId: Int64,
-        id: Int64,
-        isCompleted: Bool,
-        date: Date
-    ) {
-        guard let todoEntityDescription = NSEntityDescription.entity(forEntityName: "TodoItem", in: context) else {
-            return
-        }
-        let todo = TodoItem(entity: todoEntityDescription, insertInto: context)
-        todo.title = title
-        todo.subtitle = subtitle
-        todo.userId = userId
-        todo.id = id
-        todo.isCompleted = isCompleted
-        todo.date = date
-        saveContext()
+    func write(handler: (NSManagedObjectContext) -> Void) {
+        handler(context)
     }
     
-    public func fecthTodos() -> [TodoItem] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TodoItem")
-            return (try? context.fetch(fetchRequest) as? [TodoItem]) ?? []
-    
+    func read(fetchRequest: NSFetchRequest<TodoItem>) -> [TodoItem] {
+        return (try? context.fetch(fetchRequest)) ?? []
     }
-    
-    public func updateTodo(id: Int64, newTitle: String, newSubtitle: String, newIsCompleted: Bool) {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TodoItem")
-        guard let todos = try? context.fetch(fetchRequest) as? [TodoItem],
-              let todo = todos.first(where: { $0.id == id }) else { return }
-        todo.title = newTitle
-        todo.subtitle = newSubtitle
-        todo.isCompleted = newIsCompleted
-        
-        saveContext()
-    }
-    
-    public func deleteTodo(with id: Int64) {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TodoItem")
-        guard let todos = try? context.fetch(fetchRequest) as? [TodoItem],
-              let todo = todos.first(where: { $0.id == id }) else { return }
-        context.delete(todo)
+
+    func delete(object: NSManagedObject) {
+        context.delete(object)
         saveContext()
     }
 }

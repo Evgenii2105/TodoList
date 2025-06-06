@@ -8,18 +8,18 @@
 import Foundation
 
 protocol DataManagerService: AnyObject {
-    func getTodos(completion: @escaping (Result<TodoModels, NetworkError>) -> Void)
+    func getTodos(completion: @escaping (Result<[TodoListModel], NetworkError>) -> Void)
 }
 
 final class DataManagerServiceImpl: DataManagerService {
   
     private let client = NetworkImpl()
     
-    func getTodos(completion: @escaping (Result<TodoModels, NetworkError>) -> Void) {
+    func getTodos(completion: @escaping (Result<[TodoListModel], NetworkError>) -> Void) {
         client.request(endPoint: .todos) { (result: Result<TodoModels, NetworkError>) in
             switch result {
-            case .success(let todosResponce):
-                completion(.success(todosResponce))
+            case .success(let todosResponse):
+                completion(.success(todosResponse.todos))
             case .failure(let error):
                 completion(.failure(error))
             }

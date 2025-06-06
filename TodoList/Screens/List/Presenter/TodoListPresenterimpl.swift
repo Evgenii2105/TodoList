@@ -10,7 +10,7 @@ import Foundation
 final class TodoListPresenterImpl {
     
     weak var view: TodoListView?
-    private let interactor: TodoListInteractor?
+    private let interactor: TodoListInteractor
 
     init(view: TodoListView, interactor: TodoListInteractor) {
         self.view = view
@@ -21,19 +21,19 @@ final class TodoListPresenterImpl {
 extension TodoListPresenterImpl: TodoListPresenter {
     
     func showDetails(state: TodoListItemState) {
-        interactor?.showDetails(state: state)
+        interactor.showDetails(state: state)
     }
     
     func fetchTodos() {
-        interactor?.fetchTodos()
+        interactor.fetchTodos()
     }
     
     func remove(at index: Int) {
-        interactor?.removeTodo(at: index)
+        interactor.removeTodo(at: index)
     }
     
     func searchTodo(with query: String?) {
-        interactor?.searchTodo(with: query)
+        interactor.searchTodo(with: query)
     }
 }
 

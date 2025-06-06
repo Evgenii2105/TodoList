@@ -10,7 +10,7 @@ import UIKit
 struct TodoListModel: Decodable {
     
     let id: Int
-    let todo: String
+    let title: String
     let completed: Bool
     let userId: Int
     
@@ -24,7 +24,7 @@ struct TodoListModel: Decodable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        self.todo = try container.decode(String.self, forKey: .todo)
+        self.title = try container.decode(String.self, forKey: .todo)
         self.completed = try container.decode(Bool.self, forKey: .completed)
         self.userId = try container.decode(Int.self, forKey: .userId)
     }
@@ -35,7 +35,7 @@ extension TodoListModel {
         return TodoListItem(
             id: id,
             userId: userId,
-            title: todo,
+            title: title,
             subtitle: "",
             isCompleted: completed,
             date: TodoListHelper.array.randomElement() ?? Date.now

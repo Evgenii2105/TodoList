@@ -18,7 +18,6 @@ final class NetworkImpl {
         static let BaseURL = "dummyjson.com"
     }
     
-    
     enum APIMethod: String {
         case get = "GET"
         case post = "POST"
